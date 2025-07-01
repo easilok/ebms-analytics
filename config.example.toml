@@ -1,0 +1,6 @@
+[db]
+username = "username"
+password = "password"
+host = "localhost"
+name = "database-name"
+table = "database-table-to-insert"
