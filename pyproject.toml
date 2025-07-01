@@ -1,0 +1,23 @@
+[project]
+name = "ebms_analytics"
+version = "0.1.0"
+authors = [
+    {name = "Luis Pereira", email = "luispereira.tkd@gmail.com"},
+]
+description = "eBMS analytics parser and publisher into a PostgreSQL database."
+license = "MIT"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "SQLAlchemy>=2.0,<=3",
+    "click>=8.2,<9",
+    "pandas>=2.3,<3",
+    "psycopg2>=2.9.10",
+    "tomli>=2.2,<3",
+]
+
+[project.scripts]
+ebms_analytics = "ebms_analytics.app:app"
+
+[build-system]
+requires = ["flit_core >=3.11,<4"]
+build-backend = "flit_core.buildapi"
