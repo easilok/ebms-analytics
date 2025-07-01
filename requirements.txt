@@ -1,0 +1,5 @@
+SQLAlchemy==2.0.41
+click==8.2.1
+pandas==2.3.0
+psycopg2==2.9.10
+tomli==2.2.1
