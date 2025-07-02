@@ -1,0 +1,20 @@
+[env]
+_.python.venv = { path = ".venv-mise", create = true, python = "3.12" }
+
+[tools]
+python = "3.12"
+ruff = "latest"
+uv = "latest"
+
+[tasks.install]
+description = "Install dependencies"
+alias = "i"
+run = "uv pip install -r requirements.txt"
+
+[tasks.run]
+description = "Run the application"
+run = "python src/ebms_analytics"
+
+[tasks.lint]
+description = "Lint the code"
+run = "ruff src/"
