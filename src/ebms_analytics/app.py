@@ -1,3 +1,4 @@
+import sys
 import pandas as pd
 import click
 from ebms_analytics.db.utils import insert_into_database
@@ -12,7 +13,18 @@ def app(config:str, file: str):
 
     app_config = load_config(config)
 
-    data = pd.read_csv(file)
+    # Allows users to pass CSV as stdin
+    if file == "-":
+        if sys.stdin.isatty():
+            # No pipe or redirect was detected in stdin
+            raise click.UsageError("No data provided on stdin")
+        try:
+            data = pd.read_csv(sys.stdin)
+        except pd.errors.EmptyDataError:
+            raise click.ClickException("No valid data was detected on stdin.")
+    else:
+        data = pd.read_csv(file)
+
     data = process_ebms_occurrences(data)
     print(data[["latitude", "longitude", "date", "latitude_full", "longitude_full", "verification_status"]])
 
