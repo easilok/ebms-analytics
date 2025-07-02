@@ -1,6 +1,6 @@
 [db]
 username = "username"
 password = "password"
-host = "localhost"
+host = "localhost:5432"
 name = "database-name"
 table = "database-table-to-insert"

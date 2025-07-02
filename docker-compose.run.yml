@@ -4,9 +4,9 @@ services:
     image: easilok/ebms-analytics
     network_mode: host
     environment:
-      - DATABASE_USERNAME=${EBMS_DATABASE_USERNAME:-"ebms"}
+      - DATABASE_USERNAME=${EBMS_DATABASE_USERNAME:-ebms}
       - DATABASE_PASSWORD=${EBMS_DATABASE_PASSWORD}
-      - DATABASE_HOST=${EBMS_DATABASE_HOST:-"localhost:5432"}
-      - DATABASE_NAME=${EBMS_DATABASE_NAME:-"ebms-analytics"}
-      - DATABASE_TABLE=${EBMS_DATABASE_TABLE:-"occurence"}
+      - DATABASE_HOST=${EBMS_DATABASE_HOST:-localhost:5432}
+      - DATABASE_NAME=${EBMS_DATABASE_NAME:-ebms-analytics}
+      - DATABASE_TABLE=${EBMS_DATABASE_TABLE:-occurence}
     restart: no

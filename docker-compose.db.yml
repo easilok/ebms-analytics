@@ -1,10 +1,11 @@
 services:
   ebms-db:
     image: postgres:17-alpine
+    container_name: ebms-analytics-db
     restart: unless-stopped
     environment:
-      - POSTGRES_DB=${EBMS_DATABASE_NAME:-"ebms-analytics"}
-      - POSTGRES_USER=${EBMS_DATABASE_USERNAME:-"ebms"}
+      - POSTGRES_DB=${EBMS_DATABASE_NAME:-ebms-analytics}
+      - POSTGRES_USER=${EBMS_DATABASE_USERNAME:-ebms}
       - POSTGRES_PASSWORD=${EBMS_DATABASE_PASSWORD}
     ports:
       - ${EBMS_DATABASE_PORT:-5432}:5432

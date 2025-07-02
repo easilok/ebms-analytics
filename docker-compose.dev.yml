@@ -1,6 +1,7 @@
 services:
   ebms-db.dev:
     image: postgres:17-alpine
+    container_name: ebms-dev-db
     environment:
       - POSTGRES_DB=ebms-analytics
       - POSTGRES_USER=ebms
