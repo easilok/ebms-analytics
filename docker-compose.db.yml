@@ -1,0 +1,16 @@
+services:
+  ebms-db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=${EBMS_DATABASE_NAME:-"ebms-analytics"}
+      - POSTGRES_USER=${EBMS_DATABASE_USERNAME:-"ebms"}
+      - POSTGRES_PASSWORD=${EBMS_DATABASE_PASSWORD}
+    ports:
+      - ${EBMS_DATABASE_PORT:-5432}:5432
+    volumes:
+      - ./db/seed:/docker-entrypoint-initdb.d
+      - ebms-db:/var/lib/postgresql/data
+
+volumes:
+  ebms-db:
