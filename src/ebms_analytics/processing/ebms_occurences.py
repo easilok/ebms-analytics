@@ -16,6 +16,7 @@ def clean_data(data: pd.DataFrame):
     data["verification_status"] = data["verification_status"] == "V"
     data["count_outside"] = data["count_outside"].fillna(0)
     data["count_inside"] = data["count_inside"].fillna(0)
+    data["family"] = data["family"].fillna('Unknown')
 
     return data
 
