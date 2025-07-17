@@ -27,3 +27,26 @@ CREATE TABLE ocurrence (
     "created_at" timestamp default current_timestamp,
     "updated_at" timestamp default current_timestamp
 );
+
+CREATE TABLE session_detail (
+    "id"  BIGSERIAL PRIMARY KEY,
+    "fk_sample_id" INTEGER NOT NULL UNIQUE,
+    "ambient_start_at" TIMESTAMP WITH TIME ZONE NOT NULL,
+    "ambient_end_at" TIMESTAMP WITH TIME ZONE NOT NULL,
+    "temp_min" REAL NOT NULL,
+    "temp_max" REAL NOT NULL,
+    "temp_mean" REAL NOT NULL,
+    "precipitation_min" REAL,
+    "precipitation_max" REAL,
+    "precipitation_mean" REAL,
+    "rel_hum_min" INTEGER NOT NULL,
+    "rel_hum_max" INTEGER NOT NULL,
+    "rel_hum_mean" INTEGER NOT NULL,
+    "wind_speed_min" REAL NOT NULL,
+    "wind_speed_max" REAL NOT NULL,
+    "wind_speed_mean" REAL NOT NULL,
+    "wind_dir_mean" REAL NOT NULL,
+    "weather_condition_code" INTEGER NOT NULL,
+    "created_at" timestamp default current_timestamp,
+    "updated_at" timestamp default current_timestamp
+);
