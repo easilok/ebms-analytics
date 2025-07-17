@@ -21,3 +21,11 @@ ebms_analytics = "ebms_analytics.app:app"
 [build-system]
 requires = ["flit_core >=3.11,<4"]
 build-backend = "flit_core.buildapi"
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.format]
+quote-style = "single"
+indent-style = "space"
+docstring-code-format = true
