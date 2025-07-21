@@ -1,6 +1,5 @@
 import pandas as pd
 from sqlalchemy import create_engine
-from sqlalchemy.orm import Session
 from sqlalchemy.dialects.postgresql import insert
 from typing import TypedDict
 
@@ -10,14 +9,20 @@ class DbConfig(TypedDict):
     password: str
     host: str
     name: str
-    table: str
+    occurrence_table: str
+    detail_table: str
+
+
+conflict_index_keys = {
+    'ocurrence': ['occurrence_id'],
+    # Code should avoid inserting an existing sample_id already
+    # 'session_detail': ['fk_sample_id'],
+}
 
 
 def create_db_engine(config: DbConfig):
     """Instanciate SQLAlchemy engine based on provided db configuration"""
-    return create_engine(
-        f"postgresql://{config['username']}:{config['password']}@{config['host']}/{config['name']}"
-    )
+    return create_engine(f'postgresql://{config["username"]}:{config["password"]}@{config["host"]}/{config["name"]}')
 
 
 def insert_on_conflict_nothing(table, conn, keys, data_iter):
@@ -26,16 +31,16 @@ def insert_on_conflict_nothing(table, conn, keys, data_iter):
     https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.to_sql.html
     """
     data = [dict(zip(keys, row)) for row in data_iter]
-    stmt = (
-        insert(table.table)
-        .values(data)
-        .on_conflict_do_nothing(index_elements=["occurrence_id"])
-    )
+    stmt = insert(table.table).values(data)
+    if table in conflict_index_keys:
+        stmt = stmt.on_conflict_do_nothing(index_elements=conflict_index_keys[table])
     result = conn.execute(stmt)
     return result.rowcount
 
 
-def insert_into_database(data: pd.DataFrame, config: DbConfig):
+def insert_into_database(data: pd.DataFrame, config: DbConfig, table: str = 'occurrence'):
+    """Inserts all data from a pandas DataFrame into a database.
+    Database connection is set from `config` and the destination `table`."""
     # Instanciate SQLAlchemy engine
     engine = create_db_engine(config)
 
@@ -43,9 +48,9 @@ def insert_into_database(data: pd.DataFrame, config: DbConfig):
     # - If the table does not exist, it will be created automatically.
     # - If it exists, it will append unless you specify if_exists="replace".
     data.to_sql(
-        config["table"],
+        table,
         engine,
-        if_exists="append",
+        if_exists='append',
         index=False,
         method=insert_on_conflict_nothing,
     )

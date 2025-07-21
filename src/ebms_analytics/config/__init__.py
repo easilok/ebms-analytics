@@ -19,8 +19,11 @@ def validate_config(config):
     if not "name" in config["db"] or config["db"]["name"] is None:
         return False, "Missing 'name' in database config."
 
-    if not "table" in config["db"] or config["db"]["table"] is None:
-        return False, "Missing 'table' in database config."
+    if not "occurrence_table" in config["db"] or config["db"]["occurrence_table"] is None:
+        return False, "Missing 'occurrence_table' in database config."
+
+    if not "detail_table" in config["db"] or config["db"]["detail_table"] is None:
+        return False, "Missing 'detail_table' in database config."
 
     return True, ""
 
