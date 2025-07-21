@@ -15,6 +15,10 @@ run = "uv pip install -r requirements.txt"
 description = "Run the application"
 run = "python src/ebms_analytics"
 
+[tasks.weather]
+description = "Run the application"
+run = "python src/ebms_analytics --weather"
+
 [tasks.lint]
 description = "Lint the code"
 run = "ruff src/"
