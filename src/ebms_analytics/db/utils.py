@@ -32,8 +32,9 @@ def insert_on_conflict_nothing(table, conn, keys, data_iter):
     """
     data = [dict(zip(keys, row)) for row in data_iter]
     stmt = insert(table.table).values(data)
-    if table in conflict_index_keys:
-        stmt = stmt.on_conflict_do_nothing(index_elements=conflict_index_keys[table])
+    table_name = str(table.table)
+    if table_name in conflict_index_keys:
+        stmt = stmt.on_conflict_do_nothing(index_elements=conflict_index_keys[table_name])
     result = conn.execute(stmt)
     return result.rowcount
 
