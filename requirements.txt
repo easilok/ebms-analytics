@@ -2,5 +2,6 @@ SQLAlchemy==2.0.41
 click==8.2.1
 meteostat==1.7.4
 pandas==2.3.0
+pygbif==0.6.5
 psycopg2-binary==2.9.10
 tomli==2.2.1
