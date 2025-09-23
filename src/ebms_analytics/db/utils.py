@@ -16,6 +16,7 @@ class DbConfig(TypedDict):
 
 conflict_index_keys = {
     'ocurrence': ['occurrence_id'],
+    'gbif_occurrence': ['occurrence_key'],
     # Code should avoid inserting an existing sample_id already
     # 'session_detail': ['fk_sample_id'],
 }
