@@ -11,6 +11,7 @@ class DbConfig(TypedDict):
     name: str
     occurrence_table: str
     detail_table: str
+    gbif_table: str
 
 
 conflict_index_keys = {

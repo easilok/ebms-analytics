@@ -25,6 +25,9 @@ def validate_config(config):
     if not "detail_table" in config["db"] or config["db"]["detail_table"] is None:
         return False, "Missing 'detail_table' in database config."
 
+    if not "gbif_table" in config["db"] or config["db"]["gbif_table"] is None:
+        return False, "Missing 'gbif_table' in database config."
+
     return True, ""
 
 def load_config(filepath: str):
