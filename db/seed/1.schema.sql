@@ -50,3 +50,31 @@ CREATE TABLE session_detail (
     "created_at" timestamp default current_timestamp,
     "updated_at" timestamp default current_timestamp
 );
+
+CREATE TABLE gbif_occurrence (
+    "id"  BIGSERIAL PRIMARY KEY,
+    "occurrence_key" VARCHAR(255) NOT NULL UNIQUE,
+    "location_id" INTEGER NOT NULL,
+    "country" VARCHAR(100),
+    "province" VARCHAR(100),
+    "county" VARCHAR(100),
+    "municipality" VARCHAR(100),
+    "date" DATE NOT NULL,
+    "recorded_by" VARCHAR(255)[] NOT NULL DEFAULT array[]::varchar[],
+    "identified_by" VARCHAR(255)[] NOT NULL DEFAULT array[]::varchar[],
+    "species" VARCHAR(255),
+    "genus" VARCHAR(100),
+    "name" VARCHAR(255),
+    "family" VARCHAR(255) NOT NULL,
+    "life_stage" VARCHAR(100),
+    "count" INTEGER NOT NULL DEFAULT 0,
+    "latitude" REAL,
+    "longitude" REAL,
+    "trap" VARCHAR(255),
+    "event_time" VARCHAR(100),
+    "event_start_time" VARCHAR(20),
+    "event_end_time" VARCHAR(20),
+    "name_authorship" VARCHAR(150),
+    "created_at" timestamp default current_timestamp,
+    "updated_at" timestamp default current_timestamp
+);
