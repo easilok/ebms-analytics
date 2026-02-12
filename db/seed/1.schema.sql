@@ -75,6 +75,13 @@ CREATE TABLE gbif_occurrence (
     "event_start_time" VARCHAR(20),
     "event_end_time" VARCHAR(20),
     "name_authorship" VARCHAR(150),
+    "year" integer GENERATED ALWAYS AS (date_part('year', "date")::int) STORED
+    "month" integer GENERATED ALWAYS AS (date_part('month', "date")::int) STORED
+    session_id bigint
+        GENERATED ALWAYS AS (
+        location_id::bigint * 100000
+        + (date - DATE '1990-01-01')
+    ) STORED,
     "created_at" timestamp default current_timestamp,
     "updated_at" timestamp default current_timestamp
 );
