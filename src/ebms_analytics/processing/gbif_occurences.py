@@ -96,6 +96,7 @@ def parse_gbif_request(data: list) -> pd.DataFrame:
     df = df.set_index('key', drop=False)
     df = df.rename(COLUMNS_RENAME, axis=1)
     df['name'] = df.species.fillna(df.genus)
+    df['family'] = df.family.fillna("N/A")
     df[['event_start_time', 'event_end_time']] = df.event_time.apply(split_str_series(2))
     df['recorded_by'] = list(df.recorded_by.apply(split_str()))
     df['identified_by'] = list(df.identified_by.apply(split_str()))
