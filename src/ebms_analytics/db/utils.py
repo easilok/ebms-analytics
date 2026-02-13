@@ -47,13 +47,20 @@ def insert_into_database(data: pd.DataFrame, config: DbConfig, table: str = 'occ
     # Instanciate SQLAlchemy engine
     engine = create_db_engine(config)
 
-    # Write DataFrame to PostgreSQL with options:
-    # - If the table does not exist, it will be created automatically.
-    # - If it exists, it will append unless you specify if_exists="replace".
-    data.to_sql(
-        table,
-        engine,
-        if_exists='append',
-        index=False,
-        method=insert_on_conflict_nothing,
-    )
+    batch_size = 100
+    total_batches = int(len(data) / batch_size)
+    for start in range(0, len(data), batch_size):
+        batch = data.iloc[start:start + batch_size]
+
+        current_batch = int(start / batch_size) + 1
+        print(f"Writing batch {current_batch}/{total_batches}")
+        # Write DataFrame to PostgreSQL with options:
+        # - If the table does not exist, it will be created automatically.
+        # - If it exists, it will append unless you specify if_exists="replace".
+        batch.to_sql(
+            table,
+            engine,
+            if_exists='append',
+            index=False,
+            method=insert_on_conflict_nothing,
+        )
