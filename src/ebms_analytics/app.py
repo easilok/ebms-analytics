@@ -6,19 +6,20 @@ from ebms_analytics.db.utils import insert_into_database
 from ebms_analytics.config import load_config
 from ebms_analytics.processing.ebms_occurences import process_ebms_occurrences
 from ebms_analytics.processing.occurrences_details import add_session_details
-from ebms_analytics.processing.gbif_occurences import import_gbif_occurrences
+from ebms_analytics.processing.gbif_api_occurences import import_gbif_occurrences
 
 
 @click.command()
 @click.option('--config', default='config.toml', type=str, help='Optional configuration file.')
 @click.option('--weather', is_flag=True, help='Fill weather details on saved sessions.')
-@click.option('--gbif', is_flag=True, help='Import GBIF data on database.')
+@click.option('--gbif-api', is_flag=True, help='Import GBIF data from their API in database.')
 @click.option('--year', type=int, help='Year to import GBIF data.')
 @click.option('--month', type=int, help='Month to import GBIF data.')
 @click.argument('file', required=False)
 def app(
     config: str,
     weather: bool,
+    gbif_api: bool,
     gbif: bool,
     file: str = '',
     year: Optional[int] = None,
@@ -31,7 +32,7 @@ def app(
 
         insert_into_database(data, app_config['db'], app_config['db']['detail_table'])
 
-    elif gbif:
+    elif gbif_api:
         if year is None:
             raise click.UsageError('GBIF import require the year of data.')
 
