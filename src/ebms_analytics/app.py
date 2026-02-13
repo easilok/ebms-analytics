@@ -7,12 +7,14 @@ from ebms_analytics.config import load_config
 from ebms_analytics.processing.ebms_occurences import process_ebms_occurrences
 from ebms_analytics.processing.occurrences_details import add_session_details
 from ebms_analytics.processing.gbif_api_occurences import import_gbif_occurrences
+from ebms_analytics.processing.gbif_occurences import process_gbif_occurrences
 
 
 @click.command()
 @click.option('--config', default='config.toml', type=str, help='Optional configuration file.')
 @click.option('--weather', is_flag=True, help='Fill weather details on saved sessions.')
 @click.option('--gbif-api', is_flag=True, help='Import GBIF data from their API in database.')
+@click.option('--gbif', is_flag=True, help='Import GBIF data from a file in database.')
 @click.option('--year', type=int, help='Year to import GBIF data.')
 @click.option('--month', type=int, help='Month to import GBIF data.')
 @click.argument('file', required=False)
@@ -59,7 +61,13 @@ def app(
         else:
             data = pd.read_csv(file)
 
-        data = process_ebms_occurrences(data)
-        print(data[['latitude', 'longitude', 'date', 'latitude_full', 'longitude_full', 'verification_status']])
+        if gbif:
+            data = process_gbif_occurrences(data)
+            print(data[['latitude', 'longitude', 'date', 'name']])
 
-        insert_into_database(data, app_config['db'], app_config['db']['occurrence_table'])
+            insert_into_database(data, app_config['db'], app_config['db']['gbif_table'])
+        else:
+            data = process_ebms_occurrences(data)
+            print(data[['latitude', 'longitude', 'date', 'latitude_full', 'longitude_full', 'verification_status']])
+
+            insert_into_database(data, app_config['db'], app_config['db']['occurrence_table'])
