@@ -1,7 +1,8 @@
 import pandas as pd
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, update
 from sqlalchemy.dialects.postgresql import insert
 from typing import TypedDict
+from ebms_analytics.db.models.base import Base
 
 
 class DbConfig(TypedDict):
@@ -64,3 +65,13 @@ def insert_into_database(data: pd.DataFrame, config: DbConfig, table: str = 'occ
             index=False,
             method=insert_on_conflict_nothing,
         )
+
+def update_in_database(stmts: list[any], config: DbConfig):
+    """Executes update statements in a database.
+    Database connection is set from `config`."""
+    # Instanciate SQLAlchemy engine
+    engine = create_db_engine(config)
+
+    for stmt in stmts:
+        with engine.begin() as conn:
+            conn.execute(stmt)
