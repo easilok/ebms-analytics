@@ -55,6 +55,7 @@ CREATE TABLE gbif_occurrence (
     "id"  BIGSERIAL PRIMARY KEY,
     "occurrence_key" VARCHAR(255) NOT NULL UNIQUE,
     "location_id" INTEGER NOT NULL,
+    "location" VARCHAR(255),
     "country" VARCHAR(100),
     "province" VARCHAR(100),
     "county" VARCHAR(100),
@@ -86,6 +87,33 @@ CREATE TABLE gbif_occurrence (
     country_code VARCHAR(5) DEFAULT 'PT',
     taxon_rank VARCHAR(10),
     sampling_effort VARCHAR(100),
+    location_type VARCHAR(20) GENERATED ALWAYS AS (
+        CASE WHEN location IS NOT NULL
+            THEN 'Estação'
+            ELSE 'Temporária'
+        END
+    ) STORED,
+    is_station BOOLEAN GENERATED ALWAYS AS (
+        location IS NOT NULL
+    ) STORED,
+    is_temporary BOOLEAN GENERATED ALWAYS AS (
+        location IS NULL
+    ) STORED,
+    is_macro BOOLEAN GENERATED ALWAYS AS (
+        family in (
+            'Brahmaeidae', 'Cimeliidae', 'Cossidae', 'Drepanidae', 'Erebidae', 'Euteliidae', 'Geometridae',
+            'Lasiocampidae', 'Limacodidae', 'Noctuidae', 'Nolidae', 'Notodontidae', 'Sphingidae', 'Saturniidae'
+            )
+    ) STORED,
+    count_macro INTEGER GENERATED ALWAYS AS (
+        CASE WHEN family in (
+            'Brahmaeidae', 'Cimeliidae', 'Cossidae', 'Drepanidae', 'Erebidae', 'Euteliidae', 'Geometridae',
+            'Lasiocampidae', 'Limacodidae', 'Noctuidae', 'Nolidae', 'Notodontidae', 'Sphingidae', 'Saturniidae'
+        )
+            THEN count
+            ELSE 0
+        END
+    ) STORED,
     "created_at" timestamp default current_timestamp,
     "updated_at" timestamp default current_timestamp
 );
