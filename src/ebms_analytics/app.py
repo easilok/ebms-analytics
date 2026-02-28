@@ -2,13 +2,13 @@ import sys
 from typing import Optional
 import pandas as pd
 import click
-from ebms_analytics.db.utils import insert_into_database
+from ebms_analytics.db.utils import insert_into_database, update_in_database
 from ebms_analytics.config import load_config
 from ebms_analytics.processing.ebms_occurences import process_ebms_occurrences
 from ebms_analytics.processing.occurrences_details import add_session_details
 from ebms_analytics.processing.gbif_api_occurences import import_gbif_occurrences
 from ebms_analytics.processing.gbif_occurences import process_gbif_occurrences
-
+from ebms_analytics.processing.gbif_locations import generate_update_statements
 
 @click.command()
 @click.option('--config', default='config.toml', type=str, help='Optional configuration file.')
@@ -17,12 +17,14 @@ from ebms_analytics.processing.gbif_occurences import process_gbif_occurrences
 @click.option('--gbif', is_flag=True, help='Import GBIF data from a file in database.')
 @click.option('--year', type=int, help='Year to import GBIF data.')
 @click.option('--month', type=int, help='Month to import GBIF data.')
+@click.option('--gbif-locations', is_flag=True, help='Sync station locations onto GBIF data.')
 @click.argument('file', required=False)
 def app(
     config: str,
     weather: bool,
     gbif_api: bool,
     gbif: bool,
+    gbif_locations: bool,
     file: str = '',
     year: Optional[int] = None,
     month: Optional[int] = None,
@@ -66,6 +68,10 @@ def app(
             print(data[['latitude', 'longitude', 'date', 'name']])
 
             insert_into_database(data, app_config['db'], app_config['db']['gbif_table'])
+        elif gbif_locations:
+            update_stmts = generate_update_statements(data)
+
+            update_in_database(update_stmts, app_config['db'])
         else:
             data = process_ebms_occurrences(data)
             print(data[['latitude', 'longitude', 'date', 'latitude_full', 'longitude_full', 'verification_status']])
