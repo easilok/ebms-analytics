@@ -117,3 +117,57 @@ CREATE TABLE gbif_occurrence (
     "created_at" timestamp default current_timestamp,
     "updated_at" timestamp default current_timestamp
 );
+
+CREATE TABLE embs_occurrence (
+    "id"  BIGSERIAL PRIMARY KEY,
+    "occurrence_key" VARCHAR(255) NOT NULL UNIQUE,
+    "location" VARCHAR(255) NOT NULL,
+    "location_id" INTEGER NOT NULL,
+    "date" DATE NOT NULL,
+    "recorded_by" VARCHAR(255) NOT NULL,
+    "identified_by" VARCHAR(255),
+    "validated_by" VARCHAR(255),
+    "validation_status" VARCHAR(5),
+    "release_status" VARCHAR(5),
+    "epithet" VARCHAR(255),
+    "genus" VARCHAR(255),
+    "species" VARCHAR(255),
+    "species_name" VARCHAR(255),
+    "family" VARCHAR(255) NOT NULL,
+    "subfamily" VARCHAR(255),
+    "taxon_rank" VARCHAR(100) NOT NULL,
+    "taxon_meaning_id" INTEGER,
+    "life_stage" VARCHAR(100),
+    "count" INTEGER NOT NULL DEFAULT 0,
+    "latitude" REAL,
+    "longitude" REAL,
+    "event_start" DATE,
+    "event_end" DATE,
+    "species_authorship" VARCHAR(255),
+    "year" INTEGER NOT NULL,
+    "month" INTEGER NOT NULL,
+    "event_id" INTEGER NOT NULL,
+    -- "is_station"
+    -- "is_temporary"
+    -- "location_type"
+    is_macro BOOLEAN GENERATED ALWAYS AS (
+        family in (
+            'Brahmaeidae', 'Cimeliidae', 'Cossidae', 'Drepanidae', 'Erebidae', 'Euteliidae', 'Geometridae',
+            'Lasiocampidae', 'Limacodidae', 'Noctuidae', 'Nolidae', 'Notodontidae', 'Sphingidae', 'Saturniidae'
+            )
+    ) STORED,
+    count_macro INTEGER GENERATED ALWAYS AS (
+        CASE WHEN family in (
+            'Brahmaeidae', 'Cimeliidae', 'Cossidae', 'Drepanidae', 'Erebidae', 'Euteliidae', 'Geometridae',
+            'Lasiocampidae', 'Limacodidae', 'Noctuidae', 'Nolidae', 'Notodontidae', 'Sphingidae', 'Saturniidae'
+        )
+            THEN count
+            ELSE 0
+        END
+    ) STORED,
+    "warehouse_url" VARCHAR(255),
+    "image_filename" VARCHAR(255)[],
+    "image_paths" VARCHAR(255)[],
+    "created_at" timestamp default current_timestamp,
+    "updated_at" timestamp default current_timestamp
+);
