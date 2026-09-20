@@ -9,6 +9,7 @@ from ebms_analytics.processing.occurrences_details import add_session_details
 from ebms_analytics.processing.gbif_api_occurences import import_gbif_occurrences
 from ebms_analytics.processing.gbif_occurences import process_gbif_occurrences
 from ebms_analytics.processing.gbif_locations import generate_update_statements
+from ebms_analytics.processing.ebms_api_occurrences import import_ebms_occurrences
 
 @click.command()
 @click.option('--config', default='config.toml', type=str, help='Optional configuration file.')
@@ -18,6 +19,7 @@ from ebms_analytics.processing.gbif_locations import generate_update_statements
 @click.option('--year', type=int, help='Year to import GBIF data.')
 @click.option('--month', type=int, help='Month to import GBIF data.')
 @click.option('--gbif-locations', is_flag=True, help='Sync station locations onto GBIF data.')
+@click.option('--ebms-api', is_flag=True, help='Import EBMS data from their API in database.')
 @click.argument('file', required=False)
 def app(
     config: str,
@@ -25,6 +27,7 @@ def app(
     gbif_api: bool,
     gbif: bool,
     gbif_locations: bool,
+    ebms_api: bool,
     file: str = '',
     year: Optional[int] = None,
     month: Optional[int] = None,
@@ -46,6 +49,10 @@ def app(
             insert_into_database(data, app_config['db'], app_config['db']['gbif_table'])
         else:
             print('Could not find any gbif data')
+
+    elif ebms_api:
+        data = import_ebms_occurrences()
+        # print(data)
 
     else:
         if file == '':
