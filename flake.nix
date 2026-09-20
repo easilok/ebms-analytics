@@ -1,6 +1,6 @@
 {
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-25.05";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-26.05";
   };
 
   outputs =
@@ -59,6 +59,7 @@
                 ps.psycopg2
                 ps.click
                 ps.tomli
+                ps.python-dotenv
                 meteostat
                 pygbif
               ]))
