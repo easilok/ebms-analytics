@@ -2,6 +2,8 @@ import os
 import requests
 import json
 import pandas as pd
+import time
+import sys
 from dotenv import load_dotenv
 
 
@@ -111,33 +113,68 @@ def parse_ebms_occurrences(data: list[dict]):
             occurrence["image_paths"] = [f'https://{occurrence["warehouse_url"]}/upload/{i}' for i in occurrence["image_filename"]]
     return data
 
-def import_ebms_occurrences():
+def get_ebms_data_page(last_updated_at: str, page: str | None = None):
     payload = {
         "size": 1000,
         "sort": {
-            "metadata.created_on": {
-                "order": "desc"
+            "metadata.updated_on": {
+                "order": "asc"
+            },
+            "id": {
+                "order": "asc"
             }
         },
         "query": {
             "bool": {
                 "must": [
                     {
-                        "query_string": {
-                            "query": 'location.name:"Belmiro"'
-                        }
+                        "range" : {"event.date_start" : {"gte" : last_updated_at}},
+        #                 "query_string": {
+        #                     "query": 'location.name:"Belmiro"'
+        #                 }
                     }
                 ]
             }
         }
     }
 
+    if isinstance(page, list):
+        payload["search_after"] = page
     ebms_data = get_ebms_data(payload)
     if "hits" not in ebms_data and "hits" not in ebms_data["hits"]:
         raise Exception("eBMS fetched occurrences has invalid structured")
-    # print(json.dumps(ebms_data["hits"]["hits"]))
-    # print()
-    print(f"Fetched 1000 entries out of total {ebms_data["hits"]["total"]["value"]}")
-    occurrences = get_ebms_data_from_api(ebms_data["hits"]["hits"])
-    parsed_occurrences = parse_ebms_occurrences(occurrences)
-    return parsed_occurrences
+
+    return ebms_data["hits"]["hits"], ebms_data["hits"]["total"]["value"]
+
+def persist_ebms_occurrences(data: pd.DataFrame):
+    insert_into_database(data, app_config['db'], app_config['db']['ebms_occurrence_table'])
+
+def import_ebms_occurrences():
+    last_updated_at =  '1970-01-01'
+    total = sys.maxsize
+    inserted = 0
+    page = None
+    result = []
+
+    while inserted < total:
+        ebms_data, total = get_ebms_data_page(last_updated_at, page)
+        inserted += len(ebms_data)
+        print(f"Fetched {inserted} entries out of total {total}")
+
+        if len(ebms_data) == 0:
+            # No more results to fetch
+            break
+
+        # Parse fetched data
+        occurrences = get_ebms_data_from_api(ebms_data)
+        parsed_occurrences = parse_ebms_occurrences(occurrences)
+        # Extracts information for elastic cache pagination
+        # https://www.elastic.co/docs/reference/elasticsearch/rest-apis/paginate-search-results
+        page = ebms_data[-1]["sort"]
+        inserted += len(parsed_occurrences)
+        result.extend(parsed_occurrences)
+        print(f"Added {len(parsed_occurrences)} entries for a total {len(result)}")
+        time.sleep(2)
+
+    df = pd.DataFrame(result)
+    return result
