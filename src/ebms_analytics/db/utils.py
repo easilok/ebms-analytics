@@ -1,4 +1,5 @@
 import pandas as pd
+import datetime as dt
 from sqlalchemy import create_engine, update
 from sqlalchemy.dialects.postgresql import insert
 from typing import TypedDict
@@ -15,9 +16,9 @@ class DbConfig(TypedDict):
 
 
 conflict_index_keys = {
-    'ocurrence': ['occurrence_id'],
-    'gbif_occurrence': ['occurrence_key'],
-    'ebms_occurrence': ['occurrence_key'],
+    'ocurrence': {'columns': ['occurrence_id']},
+    'gbif_occurrence': {'columns': ['occurrence_key']},
+    'ebms_occurrence': {'columns': ['occurrence_key'], 'conflict': 'update'},
     # Code should avoid inserting an existing sample_id already
     # 'session_detail': ['fk_sample_id'],
 }
@@ -37,7 +38,15 @@ def insert_on_conflict_nothing(table, conn, keys, data_iter):
     stmt = insert(table.table).values(data)
     table_name = str(table.table)
     if table_name in conflict_index_keys:
-        stmt = stmt.on_conflict_do_nothing(index_elements=conflict_index_keys[table_name])
+        conflict_columns = conflict_index_keys[table_name]['columns']
+        conflict_type = conflict_index_keys[table_name].get('conflict', 'ignore')
+        if conflict_type == 'update':
+            stmt = stmt.on_conflict_do_update(
+                index_elements=conflict_columns,
+                set_={**stmt.excluded, "updated_at": dt.datetime.now()},
+            )
+        else:
+            stmt = stmt.on_conflict_do_nothing(index_elements=conflict_columns)
     result = conn.execute(stmt)
     return result.rowcount
 
