@@ -82,6 +82,7 @@
             pkgs.ncurses
             pkgs.pkg-config
             pkgs.openblas
+            pkgs.ruff
           ];
           packages = with pkgs; [ uv ];
           shellHook = ''
@@ -99,6 +100,7 @@
             python312Packages.venvShellHook
             python312Packages.numpy # required to avoid import error
             uv
+            ruff
           ];
 
           venvDir = ".venv";
