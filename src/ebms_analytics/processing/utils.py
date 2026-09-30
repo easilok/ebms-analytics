@@ -1,11 +1,13 @@
 import pandas as pd
 
+
 def dataframe_column_renamer(columns: list[str]):
     columns_rename = {}
     for c in columns:
-        columns_rename[c] = c.replace(" ", "_").lower()
+        columns_rename[c] = c.replace(' ', '_').lower()
 
     return columns_rename
+
 
 def split_str(n: int | None = None):
     def fn(val):
@@ -40,3 +42,20 @@ def split_str_series(n: int | None = None):
         return pd.Series(split(val))
 
     return fn
+
+
+def get_obj_path(data: dict, path: str):
+    keys = path.split('.')
+    value = data
+    for key in keys:
+        if not key in value:
+            return None
+        value = value[key]
+    return value
+
+
+
+def ensure_str(val: str | None, default=''):
+    if not isinstance(val, str) or len(val) == 0:
+        return default
+    return val

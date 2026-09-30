@@ -51,7 +51,7 @@ def app(
             print('Could not find any gbif data')
 
     elif ebms_api:
-        data = import_ebms_occurrences()
+        data = import_ebms_occurrences(app_config)
         # print(data)
 
     else:

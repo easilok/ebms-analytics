@@ -118,11 +118,11 @@ CREATE TABLE gbif_occurrence (
     "updated_at" timestamp default current_timestamp
 );
 
-CREATE TABLE embs_occurrence (
+CREATE TABLE ebms_occurrence (
     "id"  BIGSERIAL PRIMARY KEY,
     "occurrence_key" VARCHAR(255) NOT NULL UNIQUE,
-    "location" VARCHAR(255) NOT NULL,
-    "location_id" INTEGER NOT NULL,
+    "location" VARCHAR(255),
+    "location_id" INTEGER,
     "date" DATE NOT NULL,
     "recorded_by" VARCHAR(255) NOT NULL,
     "identified_by" VARCHAR(255),
@@ -133,9 +133,9 @@ CREATE TABLE embs_occurrence (
     "genus" VARCHAR(255),
     "species" VARCHAR(255),
     "species_name" VARCHAR(255),
-    "family" VARCHAR(255) NOT NULL,
+    "family" VARCHAR(255) NOT NULL DEFAULT '-',
     "subfamily" VARCHAR(255),
-    "taxon_rank" VARCHAR(100) NOT NULL,
+    "taxon_rank" VARCHAR(100) NOT NULL DEFAULT '-',
     "taxon_meaning_id" INTEGER,
     "life_stage" VARCHAR(100),
     "count" INTEGER NOT NULL DEFAULT 0,

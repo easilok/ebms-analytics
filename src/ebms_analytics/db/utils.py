@@ -4,7 +4,6 @@ from sqlalchemy.dialects.postgresql import insert
 from typing import TypedDict
 from ebms_analytics.db.models.base import Base
 
-
 class DbConfig(TypedDict):
     username: str
     password: str
@@ -18,6 +17,7 @@ class DbConfig(TypedDict):
 conflict_index_keys = {
     'ocurrence': ['occurrence_id'],
     'gbif_occurrence': ['occurrence_key'],
+    'ebms_occurrence': ['occurrence_key'],
     # Code should avoid inserting an existing sample_id already
     # 'session_detail': ['fk_sample_id'],
 }
@@ -51,10 +51,10 @@ def insert_into_database(data: pd.DataFrame, config: DbConfig, table: str = 'occ
     batch_size = 100
     total_batches = int(len(data) / batch_size)
     for start in range(0, len(data), batch_size):
-        batch = data.iloc[start:start + batch_size]
+        batch = data.iloc[start : start + batch_size]
 
         current_batch = int(start / batch_size) + 1
-        print(f"Writing batch {current_batch}/{total_batches}")
+        print(f'Writing batch {current_batch}/{total_batches}')
         # Write DataFrame to PostgreSQL with options:
         # - If the table does not exist, it will be created automatically.
         # - If it exists, it will append unless you specify if_exists="replace".
@@ -65,6 +65,7 @@ def insert_into_database(data: pd.DataFrame, config: DbConfig, table: str = 'occ
             index=False,
             method=insert_on_conflict_nothing,
         )
+
 
 def update_in_database(stmts: list[any], config: DbConfig):
     """Executes update statements in a database.
