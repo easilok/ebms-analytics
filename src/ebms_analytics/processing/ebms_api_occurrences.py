@@ -1,15 +1,37 @@
 import os
 import requests
-import json
 import pandas as pd
 import time
 import sys
 from dotenv import load_dotenv
+from sqlalchemy import desc, select
+from ebms_analytics.db.utils import create_db_engine
 from ebms_analytics.db.utils import insert_into_database
+from ebms_analytics.db.models import EbmsOccurrence
 from ebms_analytics.processing.utils import ensure_str, get_obj_path
 
 
-def get_ebms_api_details():
+def _get_last_registered_occurrence(config, default: str) -> str:
+    "Gets the most recent updated record"
+    engine = create_db_engine(config)
+
+    stmt = (
+        select(
+            EbmsOccurrence.updated_at,
+        )
+        .order_by(desc(EbmsOccurrence.updated_at))
+        .limit(1)
+    )
+
+    with engine.begin() as conn:
+        last_occurrence = conn.execute(stmt).first()
+        if last_occurrence is None:
+            return default
+
+        return last_occurrence.updated_at.isoformat()
+
+
+def _get_ebms_api_details():
     load_dotenv()
 
     warehouse_url = os.getenv('EBMS_WAREHOUSE_URL')
@@ -18,7 +40,6 @@ def get_ebms_api_details():
     project_id = os.getenv('EBMS_API_PROJECT_ID', 'REBNPORTUGAL')
     es_endpoint = os.getenv('EBMS_API_ES_ENDPOINT', 'es-occurrences')
 
-    # TODO: abort program if missing envs
     if not warehouse_url:
         raise ValueError(f'Missing warehouse api url as EBMS_WAREHOUSE_URL')
     if not user:
@@ -33,8 +54,8 @@ def get_ebms_api_details():
     }
 
 
-def get_ebms_data(payload: dict):
-    ebms_api_details = get_ebms_api_details()
+def _get_ebms_data(payload: dict):
+    ebms_api_details = _get_ebms_api_details()
     username = ebms_api_details['username']
     password = ebms_api_details['password']
 
@@ -82,7 +103,7 @@ COLUMN_MAPPING = {
 }
 
 
-def get_ebms_data_from_api(data: list[dict]):
+def _get_ebms_data_from_api(data: list[dict]):
     occurrences = []
     for row in data:
         occurrence = {}
@@ -135,7 +156,7 @@ def get_ebms_data_page(last_updated_at: str, page: str | None = None):
 
     if isinstance(page, list):
         payload['search_after'] = page
-    ebms_data = get_ebms_data(payload)
+    ebms_data = _get_ebms_data(payload)
     if 'hits' not in ebms_data and 'hits' not in ebms_data['hits']:
         raise Exception('eBMS fetched occurrences has invalid structured')
 
@@ -146,15 +167,24 @@ def persist_ebms_occurrences(data: pd.DataFrame, db_config: dict[str, any]):
     insert_into_database(data, db_config, db_config['ebms_occurrence_table'])
 
 
-def import_ebms_occurrences(app_config: dict[str, any]):
+def import_ebms_occurrences(db_config: dict[str, any]):
     last_updated_at = '1970-01-01'
     total = sys.maxsize
     inserted = 0
     page = None
     result = []
 
+    last_updated_at = _get_last_registered_occurrence(db_config, '1970-01-01')
+
+    print(f'Starting importing from {last_updated_at}')
+
     while inserted < total:
         ebms_data, total = get_ebms_data_page(last_updated_at, page)
+
+        if total == 0:
+            print('No new data to insert')
+            break
+
         print(
             f'Fetched {inserted + len(ebms_data)} entries out of total {total} '
             f'({round((inserted + len(ebms_data)) / total * 100, 1)} %)'
@@ -165,7 +195,7 @@ def import_ebms_occurrences(app_config: dict[str, any]):
             break
 
         # Parse fetched data
-        occurrences = get_ebms_data_from_api(ebms_data)
+        occurrences = _get_ebms_data_from_api(ebms_data)
         parsed_occurrences = parse_ebms_occurrences(occurrences)
         # Extracts information for elastic cache pagination
         # https://www.elastic.co/docs/reference/elasticsearch/rest-apis/paginate-search-results
@@ -173,7 +203,7 @@ def import_ebms_occurrences(app_config: dict[str, any]):
         inserted += len(parsed_occurrences)
         result.extend(parsed_occurrences)
         print(f'Adding {len(parsed_occurrences)} entries for a total {len(result)}')
-        persist_ebms_occurrences(pd.DataFrame(parsed_occurrences), app_config['db'])
+        persist_ebms_occurrences(pd.DataFrame(parsed_occurrences), db_config)
         time.sleep(2)
 
     df = pd.DataFrame(result)
