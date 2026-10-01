@@ -147,9 +147,24 @@ CREATE TABLE ebms_occurrence (
     "year" INTEGER NOT NULL,
     "month" INTEGER NOT NULL,
     "event_id" INTEGER NOT NULL,
-    -- "is_station"
-    -- "is_temporary"
-    -- "location_type"
+    is_station BOOLEAN GENERATED ALWAYS AS (
+        CASE WHEN location IS NULL
+             THEN false
+             ELSE location ILIKE 'estação%' or location ILIKE 'estacao%'
+        END
+    ) STORED,
+    is_temporary BOOLEAN GENERATED ALWAYS AS (
+        CASE WHEN location IS NULL
+             THEN true
+             ELSE not (location ILIKE 'estação%' or location ILIKE 'estacao%')
+        END
+    ) STORED,
+    location_type VARCHAR(20) GENERATED ALWAYS AS (
+        CASE WHEN location IS NOT NULL AND (location ILIKE 'estação%' or location ILIKE 'estacao%')
+             THEN 'Estação'
+             ELSE 'Temporária'
+        END
+    ) STORED,
     is_macro BOOLEAN GENERATED ALWAYS AS (
         family in (
             'Brahmaeidae', 'Cimeliidae', 'Cossidae', 'Drepanidae', 'Erebidae', 'Euteliidae', 'Geometridae',
