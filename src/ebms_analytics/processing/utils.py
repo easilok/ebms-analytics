@@ -54,8 +54,13 @@ def get_obj_path(data: dict, path: str):
     return value
 
 
-
 def ensure_str(val: str | None, default=''):
     if not isinstance(val, str) or len(val) == 0:
         return default
+    return val
+
+
+def trim_str(val: str | None):
+    if isinstance(val, str):
+        return val.strip()
     return val

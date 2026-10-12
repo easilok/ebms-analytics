@@ -8,7 +8,7 @@ from sqlalchemy import desc, select
 from ebms_analytics.db.utils import create_db_engine
 from ebms_analytics.db.utils import insert_into_database
 from ebms_analytics.db.models import EbmsOccurrence
-from ebms_analytics.processing.utils import ensure_str, get_obj_path
+from ebms_analytics.processing.utils import ensure_str, get_obj_path, trim_str
 
 
 def _get_last_registered_occurrence(config, default: str) -> str:
@@ -124,6 +124,13 @@ def parse_ebms_occurrences(data: list[dict]):
         occurrence['count'] = occurrence['count'] or 0
         occurrence['taxon_rank'] = ensure_str(occurrence['taxon_rank'], '-')
         occurrence['family'] = ensure_str(occurrence['family'], '-')
+        occurrence['species_authorship'] = trim_str(
+            ensure_str(occurrence['species_authorship']).replace('(', '').replace(')', '')
+        )
+        occurrence['location'] = trim_str(occurrence['location'])
+        occurrence['recorded_by'] = trim_str(occurrence['recorded_by'])
+        occurrence['identified_by'] = trim_str(occurrence['identified_by'])
+        occurrence['validated_by'] = trim_str(occurrence['validated_by'])
         if isinstance(occurrence['species'], str):
             species = occurrence['species'].split(' ')
             if len(species) > 1:
