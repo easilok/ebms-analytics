@@ -99,6 +99,8 @@
             python312
             python312Packages.venvShellHook
             python312Packages.numpy # required to avoid import error
+            python312Packages.geopandas
+            python312Packages.pyogrio
             uv
             ruff
           ];
