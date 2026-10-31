@@ -71,22 +71,22 @@ CREATE TABLE gbif_occurrence (
     "count" INTEGER NOT NULL DEFAULT 0,
     "latitude" REAL,
     "longitude" REAL,
-    "trap" VARCHAR(255),
+    "protocol" VARCHAR(255),
     "event_time" VARCHAR(100),
     "event_start_time" VARCHAR(20),
     "event_end_time" VARCHAR(20),
     "name_authorship" VARCHAR(150),
     "year" integer GENERATED ALWAYS AS (date_part('year', "date")::int) STORED,
     "month" integer GENERATED ALWAYS AS (date_part('month', "date")::int) STORED,
+    locality VARCHAR(255),
+    country_code VARCHAR(5) DEFAULT 'PT',
+    taxon_rank VARCHAR(10),
+    sampling_effort VARCHAR(100),
     session_id bigint
         GENERATED ALWAYS AS (
         location_id::bigint * 100000
         + (date - DATE '1990-01-01')
     ) STORED,
-    locality VARCHAR(255),
-    country_code VARCHAR(5) DEFAULT 'PT',
-    taxon_rank VARCHAR(10),
-    sampling_effort VARCHAR(100),
     location_type VARCHAR(20) GENERATED ALWAYS AS (
         CASE WHEN location IS NOT NULL
             THEN 'Estação'
@@ -120,30 +120,38 @@ CREATE TABLE gbif_occurrence (
 
 CREATE TABLE ebms_occurrence (
     "id"  BIGSERIAL PRIMARY KEY,
-    "occurrence_key" VARCHAR(255) NOT NULL UNIQUE,
+    "occurrence_id" VARCHAR(255) NOT NULL UNIQUE,
     "location" VARCHAR(255),
     "location_id" INTEGER,
-    "date" DATE NOT NULL,
+    "country" VARCHAR(100),
+    "region" VARCHAR(100),
+    "state_province" VARCHAR(100),
+    "county" VARCHAR(100),
+    "municipality" VARCHAR(100),
+    "locality" VARCHAR(255),
+    "event_date" DATE NOT NULL,
     "recorded_by" VARCHAR(255) NOT NULL,
     "identified_by" VARCHAR(255),
     "validated_by" VARCHAR(255),
-    "validation_status" VARCHAR(5),
+    "identification_verification_status" VARCHAR(5),
     "release_status" VARCHAR(5),
     "epithet" VARCHAR(255),
     "genus" VARCHAR(255),
     "species" VARCHAR(255),
     "species_name" VARCHAR(255),
+    "scientific_name" VARCHAR(255),
     "family" VARCHAR(255) NOT NULL DEFAULT '-',
     "subfamily" VARCHAR(255),
     "taxon_rank" VARCHAR(100) NOT NULL DEFAULT '-',
     "taxon_meaning_id" INTEGER,
     "life_stage" VARCHAR(100),
-    "count" INTEGER NOT NULL DEFAULT 0,
-    "latitude" REAL,
-    "longitude" REAL,
+    "individual_count" INTEGER NOT NULL DEFAULT 0,
+    "decimal_latitude" REAL,
+    "decimal_longitude" REAL,
     "event_start" DATE,
     "event_end" DATE,
     "species_authorship" VARCHAR(255),
+    "scientific_name_authorship" VARCHAR(255),
     "year" INTEGER NOT NULL,
     "month" INTEGER NOT NULL,
     "event_id" INTEGER NOT NULL,
@@ -171,12 +179,12 @@ CREATE TABLE ebms_occurrence (
             'Lasiocampidae', 'Limacodidae', 'Noctuidae', 'Nolidae', 'Notodontidae', 'Sphingidae', 'Saturniidae'
             )
     ) STORED,
-    count_macro INTEGER GENERATED ALWAYS AS (
+    macro_individual_count INTEGER GENERATED ALWAYS AS (
         CASE WHEN family in (
             'Brahmaeidae', 'Cimeliidae', 'Cossidae', 'Drepanidae', 'Erebidae', 'Euteliidae', 'Geometridae',
             'Lasiocampidae', 'Limacodidae', 'Noctuidae', 'Nolidae', 'Notodontidae', 'Sphingidae', 'Saturniidae'
         )
-            THEN count
+            THEN individual_count
             ELSE 0
         END
     ) STORED,

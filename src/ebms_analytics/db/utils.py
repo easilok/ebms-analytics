@@ -18,7 +18,7 @@ class DbConfig(TypedDict):
 conflict_index_keys = {
     'ocurrence': {'columns': ['occurrence_id']},
     'gbif_occurrence': {'columns': ['occurrence_key']},
-    'ebms_occurrence': {'columns': ['occurrence_key'], 'conflict': 'update'},
+    'ebms_occurrence': {'columns': ['occurrence_id'], 'conflict': 'update'},
     # Code should avoid inserting an existing sample_id already
     # 'session_detail': ['fk_sample_id'],
 }
