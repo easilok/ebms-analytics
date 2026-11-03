@@ -148,6 +148,7 @@ CREATE TABLE ebms_occurrence (
     "individual_count" INTEGER NOT NULL DEFAULT 0,
     "decimal_latitude" REAL,
     "decimal_longitude" REAL,
+    "mgrs" VARCHAR(20),
     "event_start" DATE,
     "event_end" DATE,
     "species_authorship" VARCHAR(255),

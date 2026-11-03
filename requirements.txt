@@ -2,6 +2,7 @@ SQLAlchemy==2.0.41
 click==8.2.1
 geopandas==1.2.0
 meteostat==1.7.4
+mgrs==1.7.0
 pandas==2.3.0
 psycopg2-binary==2.9.10
 pygbif==0.6.5

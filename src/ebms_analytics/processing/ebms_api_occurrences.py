@@ -1,4 +1,5 @@
 import geopandas as gpd
+import mgrs
 import os
 import pandas as pd
 import requests
@@ -129,10 +130,12 @@ def _get_ebms_data_from_api(data: list[dict]):
 
 
 def parse_ebms_occurrences(data: list[dict]):
+    m = mgrs.MGRS()
     for occurrence in data:
-        occurrence['decimal_latitude'] = occurrence['geo'].split(',')[0]
-        occurrence['decimal_longitude'] = occurrence['geo'].split(',')[1]
+        occurrence['decimal_latitude'] = float(occurrence['geo'].split(',')[0])
+        occurrence['decimal_longitude'] = float(occurrence['geo'].split(',')[1])
         del occurrence['geo']
+        occurrence['mgrs'] = m.toMGRS(occurrence['decimal_latitude'], occurrence['decimal_longitude'])
         occurrence['individual_count'] = occurrence['individual_count'] or 0
         occurrence['taxon_rank'] = ensure_str(occurrence['taxon_rank'], '-')
         occurrence['family'] = ensure_str(occurrence['family'], '-')
@@ -186,8 +189,8 @@ def get_ebms_data_page(last_updated_at: str, page: str | None = None):
 
 def attach_location_territory(
     occurrences: pd.DataFrame,
-    geopackage_path='./samples/Continente_CAOP2025.gpkg',
-    province_shape_path='./samples/Províncias_Corley2015.shp',
+    geopackage_path='./resources/Continente_CAOP2025.gpkg',
+    province_shape_path='./resources/Províncias_Corley2015.shp',
 ) -> pd.DataFrame:
 
     if occurrences.empty:
