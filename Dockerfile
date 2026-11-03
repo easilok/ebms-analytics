@@ -1,15 +1,14 @@
-FROM python:3.12-alpine
+FROM python:3.12-slim
 
 WORKDIR /app
 
-ADD requirements.txt .
-ADD pyproject.toml .
-ADD src src
-
-RUN apk add postgresql-dev
+COPY requirements.txt .
+COPY pyproject.toml .
+COPY src src
+COPY resources resources
 
 RUN pip install -r requirements.txt
 
-RUN pip install -e .
+# RUN pip install -e .
 
-ENTRYPOINT ["ebms_analytics"]
+CMD ["ebms_analytics", "--help"]
