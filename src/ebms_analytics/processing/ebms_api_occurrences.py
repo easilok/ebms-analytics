@@ -143,7 +143,6 @@ def parse_ebms_occurrences(data: list[dict]):
             ensure_str(occurrence['species_authorship']).replace('(', '').replace(')', '')
         )
         occurrence['scientific_name_authorship'] = trim_str(f'({occurrence["species_authorship"]})')
-        occurrence['scientific_name'] = f'{trim_str(occurrence["species"])} {occurrence["scientific_name_authorship"]}'
         occurrence['location'] = trim_str(occurrence['location'])
         occurrence['recorded_by'] = trim_str(occurrence['recorded_by'])
         occurrence['identified_by'] = trim_str(occurrence['identified_by'])
@@ -152,6 +151,7 @@ def parse_ebms_occurrences(data: list[dict]):
             species = occurrence['species'].split(' ')
             if len(species) > 1:
                 occurrence['epithet'] = species[1]
+                occurrence['scientific_name'] = f'{trim_str(occurrence["species"])} {occurrence["scientific_name_authorship"]}'
         if isinstance(occurrence['image_filename'], list):
             occurrence['image_filename'] = [i['path'] for i in occurrence['image_filename']]
             occurrence['image_paths'] = [
